@@ -1,15 +1,23 @@
 """
-Name : main.py.py
-Author : OBR01
+Name : main.py
+Author : Oussama BRICH
 Contact : brich.oussama@gmail.com
 Time    : 17/12/2020 16:16
-Desc:
+Desc: encode text in image
 """
 import png
+import argparse
 
 
-# Encode text in input image and save it with the change
 def encode(input_path, text, output_path):
+    """
+    Encode text in input image and save it with the change
+    :param input_path:  str
+    :param text: ste
+    :param output_path: str
+    :return: output_path: str
+    """
+
     rgb_rows = get_rgb_values_from_image(input_path)
 
     ascii = convert_text_to_ascii(text)
@@ -53,8 +61,13 @@ def encode(input_path, text, output_path):
     return output_path
 
 
-# Decode text from image
 def decode(image_path, rgb_rows):
+    """
+    Decode text from image
+    :param image_path: str
+    :param rgb_rows: str
+    :return: text: str
+    """
     binaries = []
     is_text_end = False
 
@@ -102,16 +115,25 @@ def decode(image_path, rgb_rows):
     return text
 
 
-# Convert text to ascii list
 def convert_text_to_ascii(text):
+    """
+    Convert text to ascii list
+    :param text: str
+    :return ascii_list:  list
+    """
     ascii_list = []
     for char in text:
         ascii_list.append(ord(char))
     return ascii_list
 
 
-# Get rgb value from image
 def get_rgb_values_from_image(image_path):
+    """
+    Get rgb value from image
+    :param image_path: str
+    :return: rgb_rows: list
+    """
+
     rgb_rows = []
 
     r = png.Reader(image_path)
@@ -129,8 +151,13 @@ def convert_ascii_to_text(ascii_list):
     return text
 
 
-# Save output image from rgb list
 def save_output_image(output_path, rgb_list):
+    """
+    Save output image from rgb list
+    :param output_path: str
+    :param rgb_list: list
+    :return output_path: str
+    """
     width = int(len(rgb_list[0])/3)
     high = len(rgb_list)
 
@@ -141,8 +168,12 @@ def save_output_image(output_path, rgb_list):
     return output_path
 
 
-# Order RGB list (as : [(R,G,B, R,G,B R,G,B), (...), ...]
 def adapt_rgb_to_write(rgb_rows):
+    """
+    Order RGB list (as : [(R,G,B, R,G,B R,G,B), (...), ...]
+    :param rgb_rows: str
+    :return rgb_pixels_list: list
+    """
     rgb_pixels_list = []
     for row in rgb_rows:
         rgb_pixels = tuple(row)
@@ -155,12 +186,23 @@ def adapt_rgb_to_write(rgb_rows):
 # Main Function #
 #################
 if __name__ == "__main__":
-
-    image_input_path = "./images/image.png"
+    # Image default output path
     image_output_path = "./images/image_with_message_encoded.png"
-    encode_text = "Hello Oussama"
+
+    # Parse argument
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", '--file', help='file input')
+    parser.add_argument("-t", '--text', help='text to encode')
+    args = parser.parse_args()
+
+    if args.file:
+        image_input_path = args.file
+    if args.text:
+        encode_text = args.text
+    else:
+        encode_text = "Hello human! this is a default toto text"
 
     encoded_image = encode(image_input_path, encode_text, image_output_path)
     print("Image with text encoded saved in : " + encoded_image)
-    text = decode(encoded_image, encoded_image)
-    print("Decoded text : " + text)
+    decoded_text = decode(encoded_image, encoded_image)
+    print("Decoded text : " + decoded_text)
