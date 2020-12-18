@@ -10,19 +10,9 @@ import png
 
 # Encode text in input image and save it with the change
 def encode(input_path, text, output_path):
-    rgb_rows = []
+    rgb_rows = get_rgb_values_from_image(input_path)
 
-    r = png.Reader(input_path)
-    for row in r.asRGB()[2]:
-        rgb_rows.append(list(row))
-    # print(rgb_rows)
-    # rgb_pixels_list = get_rgb_ordered(rgb_rows)
-
-    ascii = convert_text_to_ascii("Hello Alice !")
-
-    print(rgb_rows[0])
-    for char in ascii:
-        print(bin(char)[2:].zfill(8))
+    ascii = convert_text_to_ascii(text)
 
     '''
     Loop in ascii values of char
@@ -57,19 +47,21 @@ def encode(input_path, text, output_path):
                 rgb_rows[row][column] = rgb_rows[row][column] - 1
         pixel_rgb_position += 1
 
-    print(rgb_rows[0])
-    return rgb_rows
+    rgb_rows = adapt_rgb_to_write(rgb_rows)
+    save_output_image(output_path, rgb_rows)
+
+    return output_path
 
 
 # Decode text from image
 def decode(image_path, rgb_rows):
-    text = ""
     binaries = []
     is_text_end = False
 
+    rgb_rows = get_rgb_values_from_image(image_path)
+
     for rgb_row in rgb_rows:
         binary = ""
-        rgb_position = 0
         binary_count = 0
 
         # If end of text encrypted in image then break
@@ -97,7 +89,17 @@ def decode(image_path, rgb_rows):
                 binary += "1"
 
             binary_count += 1
-    print(str(binaries))
+
+    # Get text value fom binaries
+    ascii_list = []
+
+    for binary in binaries:
+        int_value = int(binary, 2)
+        ascii_list.append(int_value)
+
+    text = convert_ascii_to_text(ascii_list)
+
+    return text
 
 
 # Convert text to ascii list
@@ -108,6 +110,17 @@ def convert_text_to_ascii(text):
     return ascii_list
 
 
+# Get rgb value from image
+def get_rgb_values_from_image(image_path):
+    rgb_rows = []
+
+    r = png.Reader(image_path)
+    for row in r.asRGB()[2]:
+        rgb_rows.append(list(row))
+
+    return rgb_rows
+
+
 # Convert ascii list decoded to text
 def convert_ascii_to_text(ascii_list):
     text = ""
@@ -115,13 +128,27 @@ def convert_ascii_to_text(ascii_list):
         text += chr(ascii)
     return text
 
-# Order RGB list (as : [(R,G,B), (R,G,B), ...]
-# def get_rgb_ordered(rgb_rows):
-#     rgb_pixels_list = []
-#     for row in rgb_rows:
-#         rgb_pixels = [row[x:x + 3] for x in range(0, len(row), 3)]
-#         rgb_pixels_list.append(rgb_pixels)
-#     return rgb_pixels_list
+
+# Save output image from rgb list
+def save_output_image(output_path, rgb_list):
+    width = int(len(rgb_list[0])/3)
+    high = len(rgb_list)
+
+    f = open(output_path, 'wb')
+    w = png.Writer(width, high, greyscale=False)
+    w.write(f, rgb_list)
+    f.close()
+    return output_path
+
+
+# Order RGB list (as : [(R,G,B, R,G,B R,G,B), (...), ...]
+def adapt_rgb_to_write(rgb_rows):
+    rgb_pixels_list = []
+    for row in rgb_rows:
+        rgb_pixels = tuple(row)
+        rgb_pixels_list.append(rgb_pixels)
+
+    return rgb_pixels_list
 
 
 #################
@@ -129,9 +156,11 @@ def convert_ascii_to_text(ascii_list):
 #################
 if __name__ == "__main__":
 
-    image_input_path = "./images/basketBall.png"
-    image_output_path = ""
+    image_input_path = "./images/image.png"
+    image_output_path = "./images/image_with_message_encoded.png"
     encode_text = "Hello Oussama"
 
     encoded_image = encode(image_input_path, encode_text, image_output_path)
-    decode("", encoded_image)
+    print("Image with text encoded saved in : " + encoded_image)
+    text = decode(encoded_image, encoded_image)
+    print("Decoded text : " + text)
