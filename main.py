@@ -13,7 +13,7 @@ def encode(input_path, text, output_path):
     """
     Encode text in input image and save it with the change
     :param input_path:  str
-    :param text: ste
+    :param text: str
     :param output_path: str
     :return: output_path: str
     """
@@ -61,7 +61,7 @@ def encode(input_path, text, output_path):
     return output_path
 
 
-def decode(image_path, rgb_rows):
+def decode(image_path):
     """
     Decode text from image
     :param image_path: str
@@ -72,8 +72,9 @@ def decode(image_path, rgb_rows):
     is_text_end = False
 
     rgb_rows = get_rgb_values_from_image(image_path)
+    rgb_rows_image = get_rgb_values_from_image("/home/obr01/Documents/CERI/M2_S3/securite_dans_les_systemes/TP/TP2/images/image.png")
 
-    for rgb_row in rgb_rows:
+    for row_index, rgb_row in enumerate(rgb_rows):
         binary = ""
         binary_count = 0
 
@@ -82,7 +83,7 @@ def decode(image_path, rgb_rows):
             break
 
         # Loop in r/g/b values
-        for value in rgb_row:
+        for index, value in enumerate(rgb_row):
             # If end of binary block (8 r/g/b values)
             if binary_count == 8:
                 if (value % 2) == 0:
@@ -133,7 +134,6 @@ def get_rgb_values_from_image(image_path):
     :param image_path: str
     :return: rgb_rows: list
     """
-
     rgb_rows = []
 
     r = png.Reader(image_path)
@@ -143,8 +143,12 @@ def get_rgb_values_from_image(image_path):
     return rgb_rows
 
 
-# Convert ascii list decoded to text
 def convert_ascii_to_text(ascii_list):
+    """
+    Convert ascii list decoded to text
+    :param ascii_list: list
+    :return text: str
+    """
     text = ""
     for ascii in ascii_list:
         text += chr(ascii)
@@ -160,7 +164,6 @@ def save_output_image(output_path, rgb_list):
     """
     width = int(len(rgb_list[0])/3)
     high = len(rgb_list)
-
     f = open(output_path, 'wb')
     w = png.Writer(width, high, greyscale=False)
     w.write(f, rgb_list)
@@ -170,7 +173,7 @@ def save_output_image(output_path, rgb_list):
 
 def adapt_rgb_to_write(rgb_rows):
     """
-    Order RGB list (as : [(R,G,B, R,G,B R,G,B), (...), ...]
+    Order RGB list (as : [(R,G,B, R,G,B, R,G,B), (...), ...]
     :param rgb_rows: str
     :return rgb_pixels_list: list
     """
@@ -186,8 +189,9 @@ def adapt_rgb_to_write(rgb_rows):
 # Main Function #
 #################
 if __name__ == "__main__":
-    # Image default output path
+    # Image default image output and inputpath
     image_output_path = "./images/image_with_message_encoded.png"
+    image_input_path = "./images/image.png"
 
     # Parse argument
     parser = argparse.ArgumentParser()
@@ -200,9 +204,9 @@ if __name__ == "__main__":
     if args.text:
         encode_text = args.text
     else:
-        encode_text = "Hello human! this is a default toto text"
+        encode_text = "Hello human!"
 
     encoded_image = encode(image_input_path, encode_text, image_output_path)
     print("Image with text encoded saved in : " + encoded_image)
-    decoded_text = decode(encoded_image, encoded_image)
+    decoded_text = decode(encoded_image)
     print("Decoded text : " + decoded_text)
