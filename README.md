@@ -26,5 +26,4 @@ $ python3 main.py -f ./images/image.png -t "Alice and bob use this!"
 - -h : Show help.
 
 By Oussama BRICH (brich.oussama@gmail.com),
-No constraints to use this code.
-__
+No constraints to use this code.# One-Time-Pad
