@@ -25,5 +25,5 @@ $ python3 main.py -f ./images/image.png -t "Alice and bob use this!"
 
 - -h : Show help.
 
-By Oussama BRICH (brich.oussama@gmail.com),
+By Oussama BRICH (contact@oussama-brich.com),
 No constraints to use this code.
